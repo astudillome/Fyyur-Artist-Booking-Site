@@ -55,6 +55,14 @@ class Venue(db.Model):
     past_shows_count = db.Column(db.Integer)
     upcoming_shows_count = db.Column(db.Integer)
 
+    @property
+    def search_term(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'num_upcoming_shows': self.upcoming_shows_count
+        }
+        
     def __repr__(self):
         return '<Venue {}>'.format(self.name)
 
@@ -132,7 +140,9 @@ app.jinja_env.filters['datetime'] = format_datetime
 
 @app.route('/')
 def index():
-    return render_template('pages/home.html')
+    artists = Artist.query.order_by(Artist.id.desc()).limit(5).all()
+    venues = Venue.query.order_by(Venue.id.desc()).limit(5).all()
+    return render_template('pages/home.html', artists=artists, venues=venues)
 
 
 #  Venues
@@ -170,15 +180,18 @@ def search_venues():
     # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
     # seach for Hop should return "The Musical Hop".
     # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
+    search_term = request.form.get('search_term')
+    venues = Venue.query.filter(Venue.name.ilike("%" + search_term + "%")).all()
+    venues_data=[]
+
+    for venue in venues:
+      venues_data.append(venue.search_term)
+    
     response = {
-        "count": 1,
-        "data": [{
-            "id": 2,
-            "name": "The Dueling Pianos Bar",
-            "num_upcoming_shows": 0,
-        }]
+        "count": len(venues),
+        "data": venues_data
     }
-    return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
+    return render_template('pages/search_venues.html', results=response, search_term=search_term)
 
 
 @app.route('/venues/<int:venue_id>')
@@ -257,6 +270,7 @@ def create_venue_submission():
         db.session.rollback()
         print(sys.exc_info())
         flash(f"An error occurred. Venue {name} could not be listed.")
+    
     finally:
         db.session.close()
 
@@ -304,7 +318,7 @@ def artists():
 
 @app.route('/artists/search', methods=['POST'])
 def search_artists():
-    # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
+    # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.-DONE
     # seach for "A" should return "Guns N Petals", "Matt Quevado", and "The Wild Sax Band".
     # search for "band" should return "The Wild Sax Band".
     search_term = request.form.get('search_term')
@@ -360,11 +374,14 @@ def edit_artist_submission(artist_id):
         artist.seeking_venue=True if "seeking_venue" in request.form else False
         artist.seeking_description=request.form.get('seeking_description')
         db.session.commit()
+    
     except ValueError as e:
         db.session.rollback()
         print(e)
+    
     finally:
         db.session.close()
+    
     return redirect(url_for('show_artist', artist_id=artist_id))
 
 
@@ -379,7 +396,7 @@ def edit_venue(venue_id):
 
 @ app.route('/venues/<int:venue_id>/edit', methods=['POST'])
 def edit_venue_submission(venue_id):
-    # TODO: take values from the form submitted, and update existing
+    # TODO: take values from the form submitted, and update existing-DONE
     id=venue_id
     venue=Venue.query.get(id)
     try:
@@ -395,12 +412,15 @@ def edit_venue_submission(venue_id):
         venue.seeking_talent=True if "seeking_talent" in request.form else False
         venue.seeking_description=request.form.get('seeking_description')
         db.session.commit()
+    
     except ValueError as e:
         db.session.rollback()
         print(e)
+    
     finally:
         db.session.close()
     # venue record with ID <venue_id> using the new attributes
+    
     return redirect(url_for('show_venue', venue_id=venue_id))
 
 #  Create Artist
@@ -462,6 +482,7 @@ def shows():
 
     shows=Show.query.all()
     shows_data=[]
+    
     for show in shows:
           show_details={
           "venue_id": show.venue_id,
