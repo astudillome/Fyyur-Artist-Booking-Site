@@ -171,7 +171,6 @@ def venues():
                 'id': venue.id,
                 'name': venue.name,
             })
-
     return render_template('pages/venues.html', areas=data)
 
 
@@ -230,19 +229,16 @@ def show_venue(venue_id):
         "upcoming_shows": upcoming_shows,
         "past_shows_count": len(past_shows),
         "upcoming_shows_count": len(upcoming_shows)
-
     }
     return render_template('pages/show_venue.html', venue=venue_data)
 
 #  Create Venue
 #  ----------------------------------------------------------------
 
-
 @app.route('/venues/create', methods=['GET'])
 def create_venue_form():
     form = VenueForm()
     return render_template('forms/new_venue.html', form=form)
-
 
 @app.route('/venues/create', methods=['POST'])
 def create_venue_submission():
@@ -265,12 +261,10 @@ def create_venue_submission():
         db.session.add(venue)
         db.session.commit()
         flash(f"Venue {name} was successfully listed!")
-
     except:
         db.session.rollback()
         print(sys.exc_info())
         flash(f"An error occurred. Venue {name} could not be listed.")
-    
     finally:
         db.session.close()
 
@@ -283,7 +277,6 @@ def create_venue_submission():
     # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
     # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
     return render_template('pages/home.html')
-
 
 @app.route('/venues<int:venue_id>', methods=['POST'])
 def delete_venue(venue_id):
@@ -308,7 +301,6 @@ def delete_venue(venue_id):
 #  Artists
 #  ----------------------------------------------------------------
 
-
 @app.route('/artists')
 def artists():
     # TODO: replace with real data returned from querying the database-DONE
@@ -332,7 +324,6 @@ def search_artists():
       "count": len(artists),
       "data": artists_data
     }
-    
     return render_template('pages/search_artists.html', results=response, search_term=search_term)
 
 
@@ -374,14 +365,11 @@ def edit_artist_submission(artist_id):
         artist.seeking_venue=True if "seeking_venue" in request.form else False
         artist.seeking_description=request.form.get('seeking_description')
         db.session.commit()
-    
     except ValueError as e:
         db.session.rollback()
         print(e)
-    
     finally:
         db.session.close()
-    
     return redirect(url_for('show_artist', artist_id=artist_id))
 
 
@@ -412,15 +400,12 @@ def edit_venue_submission(venue_id):
         venue.seeking_talent=True if "seeking_talent" in request.form else False
         venue.seeking_description=request.form.get('seeking_description')
         db.session.commit()
-    
     except ValueError as e:
         db.session.rollback()
         print(e)
-    
     finally:
         db.session.close()
     # venue record with ID <venue_id> using the new attributes
-    
     return redirect(url_for('show_venue', venue_id=venue_id))
 
 #  Create Artist
@@ -456,12 +441,10 @@ def create_artist_submission():
         db.session.add(artist)
         db.session.commit()
         flash('Artist ' + name + ' was successfully listed!')
-
     except:
         db.session.rollback()
         print(sys.exc_info())
         flash('An error occurred. Artist ' + name + ' could not be listed.')
-
     finally:
         db.session.close()
 
@@ -492,9 +475,7 @@ def shows():
           "artist_image_link": show.artist_image_link,
           "start_time": str(show.start_time)
           }
-
           shows_data.append(show_details)
-
     return render_template('pages/shows.html', shows=shows_data)
 
 
@@ -525,12 +506,10 @@ def create_show_submission():
         db.session.add(show)
         db.session.commit()
         flash('Show was successfully listed!')
-
     except:
         db.session.rollback()
         print(sys.exc_info())
         flash('An error occurred. Show could not be listed.')
-
     finally:
         db.session.close()
 
