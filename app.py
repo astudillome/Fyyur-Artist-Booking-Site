@@ -110,7 +110,7 @@ class Show(db.Model):
         'venues.id'), nullable=False)
     venue_name = db.Column(db.String(120))
     artist_image_link = db.Column(db.String(500))
-    start_time = db.Column(db.String(), nullable=False)
+    start_time = db.Column(db.DateTime)
 
     def __repr__(self):
         return '<Show {}>'.format(self.artist_id, self.venue_id)
