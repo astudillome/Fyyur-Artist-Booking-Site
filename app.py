@@ -144,7 +144,6 @@ def index():
     venues = Venue.query.order_by(Venue.id.desc()).limit(5).all()
     return render_template('pages/home.html', artists=artists, venues=venues)
 
-
 #  Venues
 #  ----------------------------------------------------------------
 
@@ -181,14 +180,14 @@ def search_venues():
     # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
     search_term = request.form.get('search_term')
     venues = Venue.query.filter(Venue.name.ilike("%" + search_term + "%")).all()
-    venues_data=[]
+    # venues_data=[]
 
-    for venue in venues:
-      venues_data.append(venue.search_term)
+    # for venue in venues:
+    #   venues_data.append(venue)
     
     response = {
         "count": len(venues),
-        "data": venues_data
+        "data": venues
     }
     return render_template('pages/search_venues.html', results=response, search_term=search_term)
 
@@ -209,11 +208,11 @@ def show_venue(venue_id):
             "artist_image_link": artist.image_link,
             "start_time": str(show.start_time)
         }
-
         if (show.start_time < datetime.now()):
             past_shows.append(show_detail)
         else:
             upcoming_shows.append(show_detail)
+            
     venue_data = {
         "id": venue.id,
         "name": venue.name,
@@ -315,14 +314,9 @@ def search_artists():
     # search for "band" should return "The Wild Sax Band".
     search_term = request.form.get('search_term')
     artists = Artist.query.filter(Artist.name.ilike("%" + search_term + "%")).all()
-    artists_data=[]
-
-    for artist in artists:
-      artists_data.append(artist.search_term)
-    
     response={
       "count": len(artists),
-      "data": artists_data
+      "data": artists
     }
     return render_template('pages/search_artists.html', results=response, search_term=search_term)
 
